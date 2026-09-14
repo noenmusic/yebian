@@ -24,7 +24,7 @@ from PIL import Image
 from scipy import ndimage
 
 PROJECT = Path(__file__).resolve().parents[1]
-SOURCE = PROJECT.parent / "页边-素材" / "IMG_7245.JPG"
+SOURCE = PROJECT / "素材" / "IMG_7245.JPG"
 OUTPUT = PROJECT / "public" / "paper-cut-sheet.webp"
 
 WORK_W = 1400

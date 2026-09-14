@@ -43,7 +43,7 @@ export const AI_REASONS: Record<string, string> = {
 };
 export const PRESETS = ['考研二战，想再给自己一次机会。', '来到新城市，有一点想家。', '今天有点累，想慢一点。'];
 export interface Reference { title: string; author: string; excerpt: string; url: string; votes: number; cachedOn: string; source: string }
-// 引用卡：每条纸条对应一条真实知乎公开内容，经 zhihu-cli search 预取（缓存于 桌面/页边-知乎引用缓存/）。
+// 引用卡：每条纸条对应一条真实知乎公开内容，经 zhihu-cli search 预取（缓存于 页边/知乎引用缓存/）。
 // 摘要均为从缓存原文中截取的连续片段，不做改写；作者/链接/赞数保留原值。
 export const REFERENCE_MAP: Record<string, Reference> = {
   exam: { title: '决定考研二战前应该作什么准备?', author: '百里推冰', excerpt: '投入学习的一小时可以抵得上你流于形式复习的三小时，所以复习效率也是你复盘时需要注意的一点。', url: 'https://www.zhihu.com/question/518410812/answer/2362521730?utm_medium=openapi_platform&utm_source=cf621feb3f2d', votes: 44, cachedOn: '2026-09-13', source: '知乎开放平台搜索缓存' },
