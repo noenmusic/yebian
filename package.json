@@ -9,7 +9,7 @@
     "fonts:check": "python3 scripts/subset-font.py --check",
     "build": "tsc --noEmit && vite build",
     "single": "node scripts/inline.mjs",
-    "ship": "npm run fonts && npm run build && node scripts/inline.mjs \"$HOME/Desktop/页边.html\"",
+    "ship": "npm run fonts && npm run build && node scripts/inline.mjs \"$HOME/Desktop/页边/交付物/页边.html\"",
     "preview": "vite preview --host 127.0.0.1",
     "test": "tsx --test src/logic.test.ts"
   },
