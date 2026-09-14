@@ -1,0 +1,28 @@
+{
+  "name": "yebian",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "fonts": "python3 scripts/subset-font.py",
+    "fonts:check": "python3 scripts/subset-font.py --check",
+    "build": "tsc --noEmit && vite build",
+    "single": "node scripts/inline.mjs",
+    "ship": "npm run fonts && npm run build && node scripts/inline.mjs \"$HOME/Desktop/页边.html\"",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "tsx --test src/logic.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "~5.9.2",
+    "vite": "^7.1.0"
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.9.4",
+    "rough-notation": "^0.5.1",
+    "roughjs": "^4.6.6",
+    "zdog": "^1.1.3"
+  }
+}

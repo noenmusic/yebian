@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#65645e" />
+    <meta name="description" content="页边 · 给此刻的自己留一行字。一个只在本机保存的纸条交互演示。" />
+    <title>页边 — 给生活留一行字</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='10' y='5' width='44' height='54' rx='2' fill='%23fffdf7'/%3E%3Cpath d='M21 17v31M27 23h17M27 32h13' stroke='%232b2b27' stroke-width='2'/%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳到正文</a>
+    <div id="app"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"><svg id="toast-star" width="96" height="96" aria-hidden="true" hidden></svg><span id="toast-message"></span></div>
+    <dialog id="modal" aria-labelledby="dialog-title"></dialog>
+    <svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><filter id="roughen" x="-30%" y="-30%" width="160%" height="160%"><feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="7" result="noise"></feTurbulence><feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap></filter></svg>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
