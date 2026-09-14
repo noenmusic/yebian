@@ -272,7 +272,7 @@ function bindInputs() {
     const value = clampText(input.value).trim(); if (!value) return;
     if (hasSafetyRisk(value)) { safetyBack = route; navigate('#help'); return; }
     dialog('把这一行夹进册子？', '<p>保存后，这张纸条不能再回第二次。</p>', '确认留下批注', async () => {
-      await exclusive(() => {
+      await withStateLock(() => {
         store.refresh();
         if (replyTo(s(), id, value)) { save(); render(); toast('这一行已收好。获得一枚「认真读过」贴纸。'); window.setTimeout(() => { const sticker = document.querySelector<HTMLElement>('.sticker'); if (sticker) pop(sticker); confettiReply(); }, 180); }
         else { render(); toast('这页已经回过批注，或记录已改变。没有重复保存。'); }
@@ -280,9 +280,11 @@ function bindInputs() {
     });
   });
 }
-async function exclusive(action: () => void) {
-  if (navigator.locks) await navigator.locks.request('yebian-demo-state', action);
-  else action();
+let stateQueue: Promise<void> = Promise.resolve();
+function withStateLock(action: () => void) {
+  const next = stateQueue.then(() => action());
+  stateQueue = next;
+  return next;
 }
 function currentMatch() {
   return s().session ? matchNotes(s().session!.text).find(m => !s().session!.skipped.includes(m.note.id)) : undefined;
@@ -300,7 +302,7 @@ function requestSend(fromSwipe = false) {
   // 右滑把纸片飞出屏幕后如果反悔取消，就把同一张纸条请回来
   if (fromSwipe) modal.addEventListener('close', () => { if (!sent) render(false); }, { once: true });
   dialog('把这张纸条递出去？', `<p>会把你的这句话与这张纸条一起归档，并展示一条回信。</p><div class="dialog-quote">${esc(snapshot)}</div>`, '确认递出', async () => {
-    await exclusive(() => {
+    await withStateLock(() => {
       store.refresh();
       if (!s().session || s().session!.text !== snapshot) { render(); toast('另一标签页改变了当前纸条，请重新确认后递出。'); return; }
       const entry = sendNote(s(), noteId);
@@ -311,7 +313,7 @@ function requestSend(fromSwipe = false) {
 }
 function expandNote() {
   const match = currentMatch(); if (!match) return;
-  dialog(match.note.title, `<p class="note-text">${match.note.text}</p><p class="tiny muted">读者 ${match.note.number}</p><div class="dialog-quote">${esc(match.reason)}</div>${quoteMarkup(match.note.id)}`, '读完了，继续翻页', () => {});
+  dialog(match.note.title, `<p class="note-text">${esc(match.note.text)}</p><p class="tiny muted">读者 ${match.note.number}</p><div class="dialog-quote">${esc(match.reason)}</div>${quoteMarkup(match.note.id)}`, '读完了，继续翻页', () => {});
 }
 function bindTilt() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
