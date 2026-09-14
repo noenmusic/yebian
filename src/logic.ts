@@ -1,4 +1,4 @@
-import { NOTES, type Note } from './data';
+import { NOTES, AI_REASONS, type Note } from './data';
 
 export const STORAGE_KEY = 'yebian.demo.v2';
 export const LEGACY_STORAGE_KEY = 'yebian.demo.v1';
@@ -12,7 +12,7 @@ export const localDay = (date = new Date()) => `${date.getFullYear()}-${String(d
 export const safetyTerms = ['自杀', '自残', '不想活', '不想再活', '想死', '结束生命', '结束自己的生命', '伤害自己', '割腕', '跳楼', '轻生', '活不下去', '杀死自己', 'suicide', 'kill myself'];
 export const hasSafetyRisk = (text: string) => safetyTerms.some(word => text.toLowerCase().replace(/\s/g, '').includes(word.replace(/\s/g, '')));
 export interface Match { note: Note; hits: string[]; score: number; reason: string }
-export function matchNotes(text: string): Match[] { return NOTES.map(note => { const hits = note.words.filter(word => text.includes(word)); return { note, hits, score: hits.length, reason: hits.length ? `你写下的「${hits.join('」「')}」与这张纸条有文字上的交集，因此先翻到了这一页。` : '这张纸条与你的这句话没有直接交集，供你自由翻阅。' }; }).sort((a, b) => b.score - a.score); }
+export function matchNotes(text: string): Match[] { return NOTES.map(note => { const hits = note.words.filter(word => text.includes(word)); return { note, hits, score: hits.length, reason: hits.length ? `${AI_REASONS[note.id] ?? '你们写下了相近的字句，因此先翻到了这一页。'}你写下的「${hits.join('」「')}」与这张纸条有文字上的交集。` : '这张纸条与你的这句话没有直接交集，供你自由翻阅。' }; }).sort((a, b) => b.score - a.score); }
 export interface Entry { id: string; noteId: string; text: string; day: string; createdAt: string; reply: string | null; replyDraft: string; repliedAt: string | null }
 export type MessageKind = 'text' | 'image' | 'drawing';
 export interface Message { id: string; conversationId: string; sender: 'me' | 'reader'; kind: MessageKind; text: string; image?: string; drawing?: number; createdAt: string; read: boolean }

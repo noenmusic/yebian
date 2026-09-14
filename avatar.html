@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>页边 · 队员头像</title>
+    <style>
+      @font-face {
+        font-family: 'YebianHand';
+        src: url('public/fonts/zcool-qingke-huangyou-subset.woff2') format('woff2');
+        font-display: block;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #12100c; }
+      .row { display: flex; }
+      .avatar {
+        position: relative;
+        width: 800px;
+        height: 800px;
+        overflow: hidden;
+        background: url('public/paper-bg.jpg') center / cover no-repeat;
+      }
+      .avatar::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(120% 90% at 50% 45%, rgba(243, 236, 221, 0) 45%, rgba(64, 56, 42, 0.2) 100%);
+        pointer-events: none;
+      }
+      .char-wrap {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: translateY(-46px);
+      }
+      .char-wrap img { height: 330px; width: auto; filter: url(#roughen); }
+      .name {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 168px;
+        text-align: center;
+        font-family: 'YebianHand', 'PingFang SC', sans-serif;
+        font-size: 54px;
+        letter-spacing: 0.14em;
+        color: #35332c;
+        transform: rotate(-2deg);
+      }
+      .sticker {
+        position: absolute;
+        right: 84px;
+        top: 96px;
+        width: 170px;
+        height: auto;
+        transform: rotate(9deg);
+        filter: drop-shadow(0 8px 12px rgba(43, 38, 28, 0.3));
+      }
+      svg.defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <svg class="defs" aria-hidden="true" focusable="false">
+      <filter id="roughen" x="-30%" y="-30%" width="160%" height="160%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="7" result="noise"></feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+      </filter>
+    </svg>
+    <div class="row">
+      <div class="avatar" id="avatar-noen">
+        <div class="char-wrap"><img id="char-noen" alt="页" /></div>
+        <p class="name">@noen</p>
+        <img class="sticker" src="public/stickers/sticker-01.png" alt="" />
+      </div>
+      <div class="avatar" id="avatar-aining">
+        <div class="char-wrap"><img id="char-aining" alt="边" /></div>
+        <p class="name">@aining</p>
+        <img class="sticker" src="public/stickers/sticker-02.png" alt="" />
+      </div>
+    </div>
+    <script>
+      (async () => {
+        const logo = new Image();
+        logo.src = 'public/logo-yebian.png';
+        await new Promise((ok, err) => { logo.onload = ok; logo.onerror = err; });
+        const c = document.createElement('canvas');
+        c.width = logo.naturalWidth;
+        c.height = logo.naturalHeight;
+        const x = c.getContext('2d');
+        x.drawImage(logo, 0, 0);
+        const data = x.getImageData(0, 0, c.width, c.height).data;
+        const w = c.width, h = c.height;
+        const colInk = new Array(w).fill(0);
+        for (let px = 0; px < w; px++) for (let py = 0; py < h; py++) colInk[px] += data[(py * w + px) * 4 + 3];
+        // 在中间 60% 区域找最宽的零墨迹连续区间，作为两字分界
+        const lo = Math.floor(w * 0.2), hi = Math.floor(w * 0.8);
+        let best = null, runStart = -1;
+        for (let px = lo; px <= hi; px++) {
+          if (colInk[px] === 0) {
+            if (runStart < 0) runStart = px;
+          } else if (runStart >= 0) {
+            const len = px - runStart;
+            if (!best || len > best.len) best = { start: runStart, len };
+            runStart = -1;
+          }
+        }
+        if (runStart >= 0 && (!best || hi - runStart + 1 > best.len)) best = { start: runStart, len: hi - runStart + 1 };
+        const split = best ? best.start + Math.floor(best.len / 2) : Math.floor(w / 2);
+        // 每半按墨迹包围盒裁剪，加 2px 余量，保证字完整且居中
+        const bbox = (from, to) => {
+          let minX = to, maxX = from;
+          for (let px = from; px < to; px++) if (colInk[px] > 0) { if (px < minX) minX = px; if (px > maxX) maxX = px; }
+          const pad = 2;
+          minX = Math.max(from, minX - pad);
+          maxX = Math.min(to - 1, maxX + pad);
+          return [minX, maxX - minX + 1];
+        };
+        const crop = (from, to) => {
+          const [bx, bw] = bbox(from, to);
+          const out = document.createElement('canvas');
+          out.width = bw;
+          out.height = h;
+          out.getContext('2d').drawImage(logo, bx, 0, bw, h, 0, 0, bw, h);
+          return out.toDataURL('image/png');
+        };
+        document.getElementById('char-noen').src = crop(0, split);
+        document.getElementById('char-aining').src = crop(split, w);
+        window.__split = { split, w, h, gap: best };
+      })().catch((e) => { document.title = 'ERR ' + e.message; });
+    </script>
+  </body>
+</html>
