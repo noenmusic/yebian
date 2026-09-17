@@ -30,12 +30,12 @@ const scriptSrcs = [...html.matchAll(/<script[^>]+src="([^"]+)"[^>]*><\/script>/
 for (const src of scriptSrcs) {
   let js = await readFile(resolve(dist, src.replace(/^\//, '')), 'utf8');
   // JS 里以 "/" 开头的本地资源字符串（含子目录，例如运行时模板图片、音效）内联成 data URI，保证单文件离线可用。
-  js = js.replace(/"(\/[^"]*\.(?:png|jpe?g|webp|gif|svg|woff2?|ttf|otf|wav))"/g, (match, path) => {
+  js = js.replace(/"(\/[^"]*\.(?:png|jpe?g|webp|gif|svg|woff2?|ttf|otf|wav|m4a|mp3))"/g, (match, path) => {
     // 产物里带空格的资源名是百分号编码的，先解码再落盘查文件
     const file = resolve(dist, decodeURIComponent(path).replace(/^\//, ''));
     if (!existsSync(file)) return match;
     const ext = extname(file).toLowerCase();
-    const mime = ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : ext === '.gif' ? 'image/gif' : ext === '.svg' ? 'image/svg+xml' : ext === '.woff2' ? 'font/woff2' : ext === '.woff' ? 'font/woff' : ext === '.ttf' ? 'font/ttf' : ext === '.otf' ? 'font/otf' : ext === '.wav' ? 'audio/wav' : 'application/octet-stream';
+    const mime = ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : ext === '.gif' ? 'image/gif' : ext === '.svg' ? 'image/svg+xml' : ext === '.woff2' ? 'font/woff2' : ext === '.woff' ? 'font/woff' : ext === '.ttf' ? 'font/ttf' : ext === '.otf' ? 'font/otf' : ext === '.wav' ? 'audio/wav' : ext === '.m4a' ? 'audio/mp4' : ext === '.mp3' ? 'audio/mpeg' : 'application/octet-stream';
     return `"data:${mime};base64,${readFileSync(file).toString('base64')}"`;
   });
   html = html.replace(new RegExp(`<script[^>]+src="${src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*></script>`), () => `<script type="module">${js.replace(/<\/script/gi, '<\\/script')}</script>`);

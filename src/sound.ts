@@ -11,15 +11,22 @@ const flips = Object.values(
 const fireworks = Object.values(
   import.meta.glob('../sounds/烟花彩蛋/*.wav', { eager: true, query: '?url', import: 'default' }),
 ) as string[];
+const ambients = Object.values(
+  import.meta.glob('../sounds/环境/*.{m4a,mp3}', { eager: true, query: '?url', import: 'default' }),
+) as string[];
 
 const pick = (list: string[]): string | null => (list.length ? list[Math.floor(Math.random() * list.length)] : null);
 
 const cache = new Map<string, HTMLAudioElement>();
 // 输出音量：线性增益，默认 -6.0 dB（≈0.5），可在页脚滑块里调整
 let gain = 0.5;
+// 环境声是氛围材质，不抢交互音效：在统一音量基础上再压一档
+const AMBIENT_GAIN = 0.3;
+let ambient: HTMLAudioElement | null = null;
 export function setVolume(v: number) {
   gain = Math.min(1, Math.max(0, v));
   for (const el of cache.values()) el.volume = gain;
+  if (ambient) ambient.volume = gain * AMBIENT_GAIN;
 }
 function play(url: string | null | undefined) {
   if (!url) return;
@@ -38,3 +45,13 @@ export const clickSound = () => play(pick(clicks));
 export const flipSound = () => play(pick(flips));
 /** 烟花彩蛋动画：两个随机选一个 */
 export const fireworkSound = () => play(pick(fireworks));
+/** 环境声（草地上的雨）：首个用户手势后开始循环，音量随滑块联动 */
+export function ensureAmbient() {
+  if (ambient || !ambients.length) return;
+  try {
+    ambient = new Audio(ambients[0]);
+    ambient.loop = true;
+    ambient.volume = gain * AMBIENT_GAIN;
+    ambient.play().catch(() => {});
+  } catch { /* 静默降级 */ }
+}
