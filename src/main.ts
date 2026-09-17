@@ -3,7 +3,7 @@ import { NOTES, PRESETS, REFERENCE_MAP } from './data';
 import { Store, STORAGE_KEY, MAX_NOTE_CHARS, MAX_MESSAGE_CHARS, escapeHtml as esc, countChars, clampText, matchNotes, sendNote, replyTo, addConversation, addMessage, hasSafetyRisk, isPortraitTemplate, type Entry } from './logic';
 import { mountPortrait, portraitMarkup, portraitSvg, rasterizePreset, type PortraitEditor } from './portrait';
 import { bindEffects, fxCleanup, confettiSend, confettiReply, showToastStar, stopToastStar } from './fx';
-import { clickSound, flipSound, fireworkSound, setVolume, ensureAmbient } from './sound';
+import { clickSound, flipSound, fireworkSound, setVolume, startAmbient, unlockAmbient } from './sound';
 import { spotSticker, cardSticker } from './stickers';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -632,11 +632,12 @@ modal.addEventListener('click', e => {
 render(false);
 bindPaperCursor();
 bindUndoShortcut();
-// 环境声（草地上的雨）：首个用户手势后开始循环，符合浏览器自动播放策略
-const startAmbientOnce = () => {
-  ensureAmbient();
-  window.removeEventListener('pointerdown', startAmbientOnce);
-  window.removeEventListener('keydown', startAmbientOnce);
+// 环境声（草地上的雨）：进入页面即开始循环（静音待命），首次手势后出声——浏览器不允许零交互发声，这是能做到的极限
+startAmbient();
+const unlockAmbientOnce = () => {
+  unlockAmbient();
+  window.removeEventListener('pointerdown', unlockAmbientOnce);
+  window.removeEventListener('keydown', unlockAmbientOnce);
 };
-window.addEventListener('pointerdown', startAmbientOnce);
-window.addEventListener('keydown', startAmbientOnce);
+window.addEventListener('pointerdown', unlockAmbientOnce);
+window.addEventListener('keydown', unlockAmbientOnce);

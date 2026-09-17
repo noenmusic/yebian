@@ -45,13 +45,19 @@ export const clickSound = () => play(pick(clicks));
 export const flipSound = () => play(pick(flips));
 /** 烟花彩蛋动画：两个随机选一个 */
 export const fireworkSound = () => play(pick(fireworks));
-/** 环境声（草地上的雨）：首个用户手势后开始循环，音量随滑块联动 */
-export function ensureAmbient() {
+/** 环境声（草地上的雨）：进入页面即启动循环（静音待命，绕过浏览器自动播放限制），首次手势后解除静音 */
+export function startAmbient() {
   if (ambient || !ambients.length) return;
   try {
     ambient = new Audio(ambients[0]);
     ambient.loop = true;
+    ambient.muted = true;
     ambient.volume = gain * AMBIENT_GAIN;
     ambient.play().catch(() => {});
   } catch { /* 静默降级 */ }
+}
+export function unlockAmbient() {
+  if (!ambient) return;
+  ambient.muted = false;
+  ambient.volume = gain * AMBIENT_GAIN;
 }
